@@ -10,6 +10,9 @@ import Register from './pages/Register';
 import Cart from './pages/Cart';
 import ProductListing from './pages/ProductListing';
 import CategoryProducts from './pages/CategoryProducts';
+import Profile from './pages/Profile';
+import Orders from './pages/Orders';
+import AdminDashboard from './pages/AdminDashboard';
 
 export default function App() {
   return (
@@ -27,6 +30,9 @@ export default function App() {
             <Route path="/cart" element={<Cart />} />
             <Route path="/products" element={<ProductListing />} />
             <Route path="/category/:category" element={<CategoryProducts />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/orders" element={<Orders />} />
+            <Route path="/admin" element={<AdminDashboard />} />
           </Routes>
           <Footer />
         </CartProvider>

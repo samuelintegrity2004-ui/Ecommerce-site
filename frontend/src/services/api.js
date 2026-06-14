@@ -29,3 +29,18 @@ export const addToCart = (productId, quantity, product) =>
   API.post('/cart', { productId, quantity, product });
 export const removeFromCart = (productId) => API.delete(`/cart/${productId}`);
 export const clearCart = () => API.delete('/cart');
+
+export const createProduct = (data) => API.post('/products', data);
+export const updateProduct = (id, data) => API.put(`/products/${id}`, data);
+export const deleteProduct = (id) => API.delete(`/products/${id}`);
+
+export const createOrder = (data) => API.post('/orders', data);
+export const getMyOrders = () => API.get('/orders/myorders');
+export const getOrders = () => API.get('/orders');
+export const updateOrderStatus = (id, status) => API.put(`/orders/${id}/status`, { status });
+
+export const getUsers = () => API.get('/users');
+export const updateUser = (id, data) => API.put(`/users/${id}`, data);
+export const deleteUser = (id) => API.delete(`/users/${id}`);
+
+export const getAdminStats = () => API.get('/admin/stats');

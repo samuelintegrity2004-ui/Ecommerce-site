@@ -73,6 +73,14 @@ const generateRandomPrice = () => {
   return Math.floor(Math.random() * (500000 - 5000 + 1)) + 5000; // ₦5,000 to ₦500,000
 };
 
+const normalizeProductData = (body, file) => ({
+  ...body,
+  price: body.price !== undefined ? Number(body.price) : body.price,
+  stock: body.stock !== undefined ? Number(body.stock) : body.stock,
+  isFeatured: body.isFeatured === true || body.isFeatured === 'true',
+  image: file ? `/uploads/${file.filename}` : body.image,
+});
+
 const getProducts = async (req, res) => {
   const keyword = req.query.keyword
     ? { name: { $regex: req.query.keyword, $options: 'i' } } : {};
@@ -93,12 +101,14 @@ const getFeaturedProducts = async (req, res) => {
 };
 
 const createProduct = async (req, res) => {
-  const product = await Product.create(req.body);
+  const productData = normalizeProductData(req.body, req.file);
+  const product = await Product.create(productData);
   res.status(201).json(product);
 };
 
 const updateProduct = async (req, res) => {
-  const product = await Product.findByIdAndUpdate(req.params.id, req.body, { new: true });
+  const productData = normalizeProductData(req.body, req.file);
+  const product = await Product.findByIdAndUpdate(req.params.id, productData, { new: true });
   if (product) res.json(product);
   else res.status(404).json({ message: 'Product not found' });
 };

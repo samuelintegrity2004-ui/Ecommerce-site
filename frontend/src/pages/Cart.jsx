@@ -1,31 +1,34 @@
 import { Trash2, Plus, Minus, ShoppingBag, ArrowRight } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { createOrder } from '../services/api';
+import toast from 'react-hot-toast';
 
 export default function Cart() {
-  const { cart, removeItem, loading } = useCart();
+  const { cart, removeItem, updateItem, clearCart } = useCart();
   const { user } = useAuth();
+  const navigate = useNavigate();
 
-  if (!user) {
-    return (
-      <div style={{ textAlign: 'center', padding: '80px 24px' }}>
-        <ShoppingBag size={64} color="var(--border)" style={{ margin: '0 auto 20px' }} />
-        <h2 style={{ fontSize: '24px', marginBottom: '12px' }}>Sign in to view your cart</h2>
-        <Link to="/login" style={{
-          display: 'inline-block',
-          background: 'var(--brand)',
-          color: '#fff',
-          padding: '12px 28px',
-          borderRadius: 'var(--radius-sm)',
-          fontWeight: 600,
-          marginTop: '8px',
-        }}>
-          Sign In
-        </Link>
-      </div>
-    );
-  }
+  const handlePlaceOrder = async () => {
+    if (!user) {
+      navigate('/login', { state: { redirectTo: '/cart' } });
+      return;
+    }
+
+    try {
+      await createOrder({
+        orderItems: cart.items,
+        shippingAddress: { fullName: user.name, phone: '', address: '', city: '' },
+        paymentMethod: 'Pay on delivery',
+      });
+      clearCart();
+      toast.success('Order placed successfully');
+      navigate('/orders');
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Failed to place order');
+    }
+  };
 
   if (cart.items.length === 0) {
     return (
@@ -54,9 +57,8 @@ export default function Cart() {
       </h1>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: '32px', alignItems: 'start' }}>
-        {/* Items */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          {cart.items.map(item => (
+          {cart.items.map((item) => (
             <div key={item.product} style={{
               background: '#fff',
               borderRadius: 'var(--radius-md)',
@@ -77,11 +79,35 @@ export default function Cart() {
               <div style={{ flex: 1 }}>
                 <h3 style={{ fontSize: '16px', fontWeight: 600, marginBottom: '6px' }}>{item.name}</h3>
                 <p style={{ color: 'var(--brand)', fontWeight: 700, fontSize: '18px' }}>
-                  ${(item.price * item.quantity).toFixed(2)}
+                  {'\u20a6'}{(item.price * item.quantity).toLocaleString()}
                 </p>
                 <p style={{ fontSize: '13px', color: 'var(--text-muted)' }}>
-                  ${item.price} × {item.quantity}
+                  {'\u20a6'}{Number(item.price).toLocaleString()} x {item.quantity}
                 </p>
+              </div>
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                border: '1px solid var(--border)',
+                borderRadius: 'var(--radius-sm)',
+                padding: '6px',
+              }}>
+                <button
+                  aria-label="Decrease quantity"
+                  onClick={() => updateItem(item.product, item.quantity - 1)}
+                  style={{ width: '28px', height: '28px', borderRadius: 'var(--radius-sm)', background: 'var(--surface-alt)' }}
+                >
+                  <Minus size={14} />
+                </button>
+                <span style={{ minWidth: '24px', textAlign: 'center', fontWeight: 700 }}>{item.quantity}</span>
+                <button
+                  aria-label="Increase quantity"
+                  onClick={() => updateItem(item.product, item.quantity + 1)}
+                  style={{ width: '28px', height: '28px', borderRadius: 'var(--radius-sm)', background: 'var(--surface-alt)' }}
+                >
+                  <Plus size={14} />
+                </button>
               </div>
               <button onClick={() => removeItem(item.product)} style={{
                 background: '#fee2e2',
@@ -92,8 +118,8 @@ export default function Cart() {
                 color: '#dc2626',
                 transition: 'background .2s',
               }}
-              onMouseOver={e => e.currentTarget.style.background = '#fecaca'}
-              onMouseOut={e => e.currentTarget.style.background = '#fee2e2'}
+              onMouseOver={(event) => { event.currentTarget.style.background = '#fecaca'; }}
+              onMouseOut={(event) => { event.currentTarget.style.background = '#fee2e2'; }}
               >
                 <Trash2 size={16} />
               </button>
@@ -101,7 +127,6 @@ export default function Cart() {
           ))}
         </div>
 
-        {/* Summary */}
         <div style={{
           background: '#fff',
           borderRadius: 'var(--radius-md)',
@@ -114,13 +139,13 @@ export default function Cart() {
           <h2 style={{ fontSize: '20px', fontWeight: 700, marginBottom: '20px' }}>Order Summary</h2>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '20px' }}>
-            <Row label="Subtotal" value={`$${cart.totalPrice.toFixed(2)}`} />
+            <Row label="Subtotal" value={`${'\u20a6'}${cart.totalPrice.toLocaleString()}`} />
             <Row label="Shipping" value="Free" valueColor="#16a34a" />
             <div style={{ height: '1px', background: 'var(--border)' }} />
-            <Row label="Total" value={`$${cart.totalPrice.toFixed(2)}`} bold />
+            <Row label="Total" value={`${'\u20a6'}${cart.totalPrice.toLocaleString()}`} bold />
           </div>
 
-          <button style={{
+          <button onClick={handlePlaceOrder} style={{
             width: '100%',
             padding: '14px',
             background: 'var(--accent)',
@@ -136,10 +161,10 @@ export default function Cart() {
             gap: '8px',
             transition: 'background .2s',
           }}
-          onMouseOver={e => e.currentTarget.style.background = 'var(--accent-dark)'}
-          onMouseOut={e => e.currentTarget.style.background = 'var(--accent)'}
+          onMouseOver={(event) => { event.currentTarget.style.background = 'var(--accent-dark)'; }}
+          onMouseOut={(event) => { event.currentTarget.style.background = 'var(--accent)'; }}
           >
-            Proceed to Checkout <ArrowRight size={18} />
+            Place Order <ArrowRight size={18} />
           </button>
 
           <Link to="/" style={{
@@ -150,7 +175,7 @@ export default function Cart() {
             color: 'var(--brand)',
             fontWeight: 500,
           }}>
-            ← Continue Shopping
+            Continue Shopping
           </Link>
         </div>
       </div>

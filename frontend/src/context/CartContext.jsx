@@ -1,42 +1,38 @@
-import { createContext, useContext, useState, useEffect } from 'react';
-import { getCart, addToCart as apiAddToCart, removeFromCart as apiRemove } from '../services/api';
-import { useAuth } from './AuthContext';
+import { createContext, useContext } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import {
+  addItemToCart,
+  clearLocalCart,
+  removeItemFromCart,
+  updateCartItem,
+} from '../store/cartSlice';
 
 const CartContext = createContext();
 
 export const CartProvider = ({ children }) => {
-  const { user } = useAuth();
-  const [cart, setCart] = useState({ items: [], totalPrice: 0 });
-
-  const fetchCart = async () => {
-    if (!user) return;
-    try {
-      const { data } = await getCart();
-      setCart(data);
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  useEffect(() => {
-    if (user) fetchCart();
-    else setCart({ items: [], totalPrice: 0 });
-  }, [user]);
+  const dispatch = useDispatch();
+  const cart = useSelector((state) => state.cart);
 
   const addItem = async (productId, quantity = 1, product) => {
-    const { data } = await apiAddToCart(productId, quantity, product);
-    setCart(data);
+    dispatch(addItemToCart({ productId, quantity, product }));
+  };
+
+  const updateItem = (productId, quantity) => {
+    dispatch(updateCartItem({ productId, quantity }));
   };
 
   const removeItem = async (productId) => {
-    const { data } = await apiRemove(productId);
-    setCart(data);
+    dispatch(removeItemFromCart(productId));
+  };
+
+  const clearCart = () => {
+    dispatch(clearLocalCart());
   };
 
   const cartCount = cart.items.reduce((acc, item) => acc + item.quantity, 0);
 
   return (
-    <CartContext.Provider value={{ cart, addItem, removeItem, cartCount, fetchCart }}>
+    <CartContext.Provider value={{ cart, addItem, updateItem, removeItem, clearCart, cartCount }}>
       {children}
     </CartContext.Provider>
   );

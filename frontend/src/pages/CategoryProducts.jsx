@@ -3,7 +3,6 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { ChevronLeft, ShoppingCart } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { getImageProducts } from '../services/api';
-import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 
 const quantityOptions = Array.from({ length: 10 }, (_, index) => index + 1);
@@ -28,7 +27,6 @@ export default function CategoryProducts() {
   const [quantities, setQuantities] = useState({});
   const [loading, setLoading] = useState(true);
   const { addItem } = useCart();
-  const { user } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -56,11 +54,6 @@ export default function CategoryProducts() {
   }, [category]);
 
   const handleAddToCart = async (product) => {
-    if (!user) {
-      navigate('/login');
-      return;
-    }
-
     try {
       await addItem(product._id, quantities[product._id] || 1, product);
       toast.success(`${product.name} added to cart!`);

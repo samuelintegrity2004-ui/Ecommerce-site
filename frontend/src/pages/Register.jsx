@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { User, Mail, Lock } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { registerUser } from '../services/api';
@@ -8,6 +8,7 @@ import toast from 'react-hot-toast';
 export default function Register() {
   const { login } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [form, setForm] = useState({ name: '', email: '', password: '', confirm: '' });
   const [loading, setLoading] = useState(false);
 
@@ -19,7 +20,7 @@ export default function Register() {
       const { data } = await registerUser({ name: form.name, email: form.email, password: form.password });
       login(data);
       toast.success('Account created successfully!');
-      navigate('/');
+      navigate(location.state?.redirectTo || '/');
     } catch (err) {
       toast.error(err.response?.data?.message || 'Registration failed');
     } finally {

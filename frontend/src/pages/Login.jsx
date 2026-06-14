@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { loginUser } from '../services/api';
@@ -8,6 +8,7 @@ import toast from 'react-hot-toast';
 export default function Login() {
   const { login } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [form, setForm] = useState({ email: '', password: '' });
   const [showPw, setShowPw] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -19,7 +20,7 @@ export default function Login() {
       const { data } = await loginUser(form);
       login(data);
       toast.success(`Welcome back, ${data.name}!`);
-      navigate('/');
+      navigate(location.state?.redirectTo || '/');
     } catch (err) {
       toast.error(err.response?.data?.message || 'Login failed');
     } finally {

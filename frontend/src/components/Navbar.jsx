@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   Search, ShoppingCart, User, ChevronDown, MapPin,
-  Menu, X, LogOut, Package
+  Menu, X, LogOut, Package, LayoutDashboard
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
@@ -167,6 +167,9 @@ export default function Navbar() {
                   <>
                     <DropItem icon={<User size={15}/>} label={user.name} to="/profile" onClick={() => setDropdownOpen(false)} />
                     <DropItem icon={<Package size={15}/>} label="My Orders" to="/orders" onClick={() => setDropdownOpen(false)} />
+                    {user.isAdmin && (
+                      <DropItem icon={<LayoutDashboard size={15}/>} label="Admin Dashboard" to="/admin" onClick={() => setDropdownOpen(false)} />
+                    )}
                     <div style={{ height: '1px', background: 'var(--border)', margin: '4px 0' }} />
                     <button
                       onClick={() => { logout(); setDropdownOpen(false); navigate('/'); }}

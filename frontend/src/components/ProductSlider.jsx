@@ -1,8 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { ChevronLeft, ChevronRight, ShoppingCart } from 'lucide-react';
 import { useCart } from '../context/CartContext';
-import { useAuth } from '../context/AuthContext';
-import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { getImageProducts } from '../services/api';
 
@@ -12,8 +10,6 @@ export default function ProductSlider({ title = 'Best In Sales' }) {
   const sliderRef = useRef(null);
   const [products, setProducts] = useState([]);
   const { addItem } = useCart();
-  const { user } = useAuth();
-  const navigate = useNavigate();
 
   useEffect(() => {
     const loadProducts = async () => {
@@ -33,7 +29,6 @@ export default function ProductSlider({ title = 'Best In Sales' }) {
   };
 
   const handleAddToCart = async (product) => {
-    if (!user) { navigate('/login'); return; }
     try {
       await addItem(product._id, 1, product);
       toast.success(`${product.name} added to cart`);

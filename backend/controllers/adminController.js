@@ -18,6 +18,18 @@ const getDashboardStats = async (req, res) => {
     return summary;
   }, {});
 
+  const monthlyRevenue = allOrders.reduce((summary, order) => {
+    const month = new Date(order.createdAt).toLocaleString('en', { month: 'short' });
+    summary[month] = (summary[month] || 0) + order.totalPrice;
+    return summary;
+  }, {});
+
+  const orderAnalytics = allOrders.reduce((summary, order) => {
+    const month = new Date(order.createdAt).toLocaleString('en', { month: 'short' });
+    summary[month] = (summary[month] || 0) + 1;
+    return summary;
+  }, {});
+
   res.json({
     sales,
     ordersCount: allOrders.length,
@@ -26,6 +38,8 @@ const getDashboardStats = async (req, res) => {
     usersCount,
     recentOrders: orders,
     salesByStatus,
+    monthlyRevenue,
+    orderAnalytics,
   });
 };
 

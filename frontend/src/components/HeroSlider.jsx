@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 // Replace these URLs with your own images later
-const slides = [
+const fallbackSlides = [
   {
     id: 1,
     image: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=1400&q=80',
@@ -30,7 +30,15 @@ const slides = [
   },
 ];
 
-export default function HeroSlider() {
+export default function HeroSlider({ slides: managedSlides }) {
+  const slides = managedSlides?.length ? managedSlides.map((slide) => ({
+    id: slide._id,
+    image: slide.bannerImage,
+    title: slide.title,
+    subtitle: slide.subtitle,
+    buttonText: slide.buttonText,
+    destinationLink: slide.destinationLink,
+  })) : fallbackSlides;
   const [current, setCurrent] = useState(0);
   const [transitioning, setTransitioning] = useState(false);
   const navigate = useNavigate();
@@ -53,7 +61,7 @@ export default function HeroSlider() {
     return () => clearInterval(timer);
   }, [current]);
 
-  const slide = slides[current];
+  const slide = slides[current] || slides[0];
 
   return (
     <div style={{
@@ -116,7 +124,7 @@ export default function HeroSlider() {
           {slide.subtitle}
         </p>
         <button
-          onClick={() => navigate('/products')}
+          onClick={() => navigate(slide.destinationLink || '/products')}
           style={{
           background: 'var(--accent)',
           color: 'var(--brand-dark)',
@@ -130,7 +138,7 @@ export default function HeroSlider() {
         onMouseOver={e => e.currentTarget.style.transform = 'scale(1.04)'}
         onMouseOut={e => e.currentTarget.style.transform = 'scale(1)'}
         >
-          Shop Now
+          {slide.buttonText || 'Shop Now'}
         </button>
       </div>
 

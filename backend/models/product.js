@@ -1,5 +1,7 @@
 const mongoose = require('mongoose');
 
+const productSections = ['todaysDeal', 'newArrival', 'latestModel', 'hot', 'trending'];
+
 const productSchema = new mongoose.Schema(
   {
     name: { type: String, required: true },
@@ -12,8 +14,15 @@ const productSchema = new mongoose.Schema(
     rating: { type: Number, default: 0 },
     numReviews: { type: Number, default: 0 },
     isFeatured: { type: Boolean, default: false },
+    sections: {
+      type: [String],
+      enum: productSections,
+      default: [],
+    },
   },
   { timestamps: true }
 );
+
+productSchema.statics.sections = productSections;
 
 module.exports = mongoose.model('Product', productSchema);

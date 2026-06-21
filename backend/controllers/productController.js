@@ -73,11 +73,23 @@ const generateRandomPrice = () => {
   return Math.floor(Math.random() * (500000 - 5000 + 1)) + 5000; // ₦5,000 to ₦500,000
 };
 
+const parseSections = (sections) => {
+  if (Array.isArray(sections)) return sections;
+  if (!sections) return [];
+  try {
+    const parsed = JSON.parse(sections);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return String(sections).split(',').map((section) => section.trim()).filter(Boolean);
+  }
+};
+
 const normalizeProductData = (body, file) => ({
   ...body,
   price: body.price !== undefined ? Number(body.price) : body.price,
   stock: body.stock !== undefined ? Number(body.stock) : body.stock,
   isFeatured: body.isFeatured === true || body.isFeatured === 'true',
+  sections: parseSections(body.sections),
   image: file ? `/uploads/${file.filename}` : body.image,
 });
 
@@ -85,7 +97,20 @@ const getProducts = async (req, res) => {
   const keyword = req.query.keyword
     ? { name: { $regex: req.query.keyword, $options: 'i' } } : {};
   const category = req.query.category ? { category: req.query.category } : {};
-  const products = await Product.find({ ...keyword, ...category });
+  const section = req.query.section && req.query.section !== 'all' ? { sections: req.query.section } : {};
+  const newest = req.query.section === 'newArrival';
+  const page = Number(req.query.page) || 1;
+  const limit = Number(req.query.limit) || 0;
+  const skip = limit ? (page - 1) * limit : 0;
+  const sort = newest || req.query.sort === 'newest' ? { createdAt: -1 } : { createdAt: -1 };
+  const query = { ...keyword, ...category, ...section };
+  const productsQuery = Product.find(query).sort(sort);
+  if (limit) productsQuery.skip(skip).limit(limit);
+  const [products, total] = await Promise.all([productsQuery, Product.countDocuments(query)]);
+  if (limit) {
+    res.json({ products, total, page, pages: Math.ceil(total / limit) || 1 });
+    return;
+  }
   res.json(products);
 };
 
@@ -119,7 +144,21 @@ const deleteProduct = async (req, res) => {
   else res.status(404).json({ message: 'Product not found' });
 };
 
+const bulkAssignSections = async (req, res) => {
+  const { productIds = [], sections = [], mode = 'replace' } = req.body;
+  if (!Array.isArray(productIds) || productIds.length === 0) {
+    return res.status(400).json({ message: 'Select at least one product' });
+  }
+
+  const update = mode === 'add'
+    ? { $addToSet: { sections: { $each: sections } } }
+    : { $set: { sections } };
+
+  await Product.updateMany({ _id: { $in: productIds } }, update);
+  res.json({ message: 'Products updated' });
+};
+
 module.exports = {
   getProducts, getProductById, getFeaturedProducts,
-  createProduct, updateProduct, deleteProduct, getProductImages,
+  createProduct, updateProduct, deleteProduct, getProductImages, bulkAssignSections,
 };

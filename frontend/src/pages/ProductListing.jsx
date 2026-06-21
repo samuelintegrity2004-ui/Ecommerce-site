@@ -7,6 +7,23 @@ import { useCart } from '../context/CartContext';
 
 const quantityOptions = Array.from({ length: 10 }, (_, index) => index + 1);
 
+const categoryGroups = {
+  cars: ['car', 'bike'],
+  electronics: ['phone-accessories', 'laptop', 'tv', 'camera', 'hd', 'fridge'],
+  fashion: ['cloth', 'watch'],
+  'home-kitchen': ['electric-cook', 'fan', 'bulb', 'iron', 'stanley-cup'],
+  sports: ['bike'],
+};
+
+const categoryGroupLabels = {
+  all: 'All Products',
+  cars: 'Cars',
+  electronics: 'Electronics',
+  fashion: 'Fashion',
+  'home-kitchen': 'Home & Kitchen',
+  sports: 'Sports',
+};
+
 const arrangeProducts = (productList) => {
   const grouped = productList.reduce((groups, product) => {
     const category = product.category || 'other';
@@ -27,6 +44,7 @@ const arrangeProducts = (productList) => {
 };
 
 const formatCategory = (category) => {
+  if (categoryGroupLabels[category]) return categoryGroupLabels[category];
   if (category === 'all') return 'All Products';
   return category.split('-').map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
 };
@@ -64,13 +82,24 @@ export default function ProductListing() {
 
   useEffect(() => {
     const category = searchParams.get('category') || 'all';
-    setSelectedCategory(category);
+    const categoryGroup = searchParams.get('categoryGroup') || '';
+    const keyword = (searchParams.get('keyword') || '').trim().toLowerCase();
+    const activeCategory = categoryGroup || category;
+    const groupFilters = categoryGroups[categoryGroup];
+
+    setSelectedCategory(activeCategory);
     setFilteredProducts(
-      category === 'all' ? products : products.filter((product) => product.category === category)
+      products.filter((product) => {
+        const matchesCategory = groupFilters
+          ? groupFilters.includes(product.category)
+          : category === 'all' || product.category === category;
+        const matchesKeyword = !keyword || product.name.toLowerCase().includes(keyword);
+        return matchesCategory && matchesKeyword;
+      })
     );
   }, [products, searchParams]);
 
-  const categories = ['all', ...new Set(products.map((product) => product.category))];
+  const categories = ['all', ...Object.keys(categoryGroups), ...new Set(products.map((product) => product.category))];
 
   const handleAddToCart = async (product) => {
     try {
@@ -132,9 +161,12 @@ export default function ProductListing() {
                 key={category}
                 onClick={() => {
                   setSelectedCategory(category);
-                  setFilteredProducts(
-                    category === 'all' ? products : products.filter((product) => product.category === category)
-                  );
+                  const params = new URLSearchParams();
+                  if (category !== 'all') {
+                    if (categoryGroups[category]) params.set('categoryGroup', category);
+                    else params.set('category', category);
+                  }
+                  navigate(`/products${params.toString() ? `?${params.toString()}` : ''}`);
                 }}
                 style={{
                   padding: '10px 12px',

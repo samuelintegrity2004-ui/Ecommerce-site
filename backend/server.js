@@ -42,6 +42,7 @@ app.use('/api/cart', require('./routes/cartRoutes'));
 app.use('/api/orders', require('./routes/orderRoutes'));
 app.use('/api/users', require('./routes/userRoutes'));
 app.use('/api/admin', require('./routes/adminRoutes'));
+app.use('/api/homepage', require('./routes/homepageRoutes'));
 
 app.get('/api/health', (req, res) => res.json({ status: 'API running ✅' }));
 

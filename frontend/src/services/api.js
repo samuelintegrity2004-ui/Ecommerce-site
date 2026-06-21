@@ -18,8 +18,8 @@ export const registerUser = (data) => API.post('/auth/register', data);
 export const loginUser = (data) => API.post('/auth/login', data);
 export const getUserProfile = () => API.get('/auth/profile');
 
-export const getProducts = (keyword = '', category = '') =>
-  API.get(`/products?keyword=${keyword}&category=${category}`);
+export const getProducts = (keyword = '', category = '', options = {}) =>
+  API.get('/products', { params: { keyword, category, ...options } });
 export const getImageProducts = () => API.get('/products/gallery/images');
 export const getFeaturedProducts = () => API.get('/products/featured');
 export const getProductById = (id) => API.get(`/products/${id}`);
@@ -33,6 +33,7 @@ export const clearCart = () => API.delete('/cart');
 export const createProduct = (data) => API.post('/products', data);
 export const updateProduct = (id, data) => API.put(`/products/${id}`, data);
 export const deleteProduct = (id) => API.delete(`/products/${id}`);
+export const bulkAssignProductSections = (data) => API.put('/products/bulk/sections', data);
 
 export const createOrder = (data) => API.post('/orders', data);
 export const getMyOrders = () => API.get('/orders/myorders');
@@ -44,3 +45,9 @@ export const updateUser = (id, data) => API.put(`/users/${id}`, data);
 export const deleteUser = (id) => API.delete(`/users/${id}`);
 
 export const getAdminStats = () => API.get('/admin/stats');
+export const getHomepageContent = () => API.get('/homepage/content');
+export const getHomepageSettings = () => API.get('/homepage/settings');
+export const updateHomepageSettings = (data) => API.put('/homepage/settings', data);
+export const createHeroSlide = (data) => API.post('/homepage/hero-slides', data);
+export const updateHeroSlide = (id, data) => API.put(`/homepage/hero-slides/${id}`, data);
+export const deleteHeroSlide = (id) => API.delete(`/homepage/hero-slides/${id}`);

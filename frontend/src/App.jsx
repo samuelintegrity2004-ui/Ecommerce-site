@@ -1,10 +1,14 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import Home from './pages/Home';
+import Deals from './pages/Deals';
+import NewArrivals from './pages/NewArrivals';
+import CustomerService from './pages/CustomerService';
+import SupportPage from './pages/SupportPage';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Cart from './pages/Cart';
@@ -19,24 +23,43 @@ export default function App() {
     <BrowserRouter>
       <AuthProvider>
         <CartProvider>
-          <Toaster position="top-right" toastOptions={{
-            style: { fontFamily: 'Sora, sans-serif', fontSize: '14px' },
-          }} />
-          <Navbar />
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/cart" element={<Cart />} />
-            <Route path="/products" element={<ProductListing />} />
-            <Route path="/category/:category" element={<CategoryProducts />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/orders" element={<Orders />} />
-            <Route path="/admin" element={<AdminDashboard />} />
-          </Routes>
-          <Footer />
+          <AppShell />
         </CartProvider>
       </AuthProvider>
     </BrowserRouter>
+  );
+}
+
+function AppShell() {
+  const location = useLocation();
+  const isAdminArea = location.pathname.startsWith('/admin');
+
+  return (
+    <>
+      <Toaster position="top-right" toastOptions={{
+        style: { fontFamily: 'Inter, sans-serif', fontSize: '14px' },
+      }} />
+      {!isAdminArea && <Navbar />}
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/deals" element={<Deals />} />
+        <Route path="/new-arrivals" element={<NewArrivals />} />
+        <Route path="/customer-service" element={<CustomerService />} />
+        <Route path="/faqs" element={<SupportPage />} />
+        <Route path="/shipping" element={<SupportPage />} />
+        <Route path="/returns" element={<SupportPage />} />
+        <Route path="/track-order" element={<SupportPage />} />
+        <Route path="/contact" element={<SupportPage />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/cart" element={<Cart />} />
+        <Route path="/products" element={<ProductListing />} />
+        <Route path="/category/:category" element={<CategoryProducts />} />
+        <Route path="/profile" element={<Profile />} />
+        <Route path="/orders" element={<Orders />} />
+        <Route path="/admin" element={<AdminDashboard />} />
+      </Routes>
+      {!isAdminArea && <Footer />}
+    </>
   );
 }

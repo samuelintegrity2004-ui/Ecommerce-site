@@ -6,12 +6,16 @@ import { getImageProducts } from '../services/api';
 
 const shuffle = (items) => [...items].sort(() => Math.random() - 0.5);
 
-export default function ProductSlider({ title = 'Best In Sales' }) {
+export default function ProductSlider({ title = 'Best In Sales', productsOverride }) {
   const sliderRef = useRef(null);
   const [products, setProducts] = useState([]);
   const { addItem } = useCart();
 
   useEffect(() => {
+    if (productsOverride) {
+      setProducts(productsOverride);
+      return;
+    }
     const loadProducts = async () => {
       try {
         const response = await getImageProducts();
@@ -22,7 +26,7 @@ export default function ProductSlider({ title = 'Best In Sales' }) {
     };
 
     loadProducts();
-  }, []);
+  }, [productsOverride]);
 
   const scroll = (dir) => {
     sliderRef.current?.scrollBy({ left: dir * 280, behavior: 'smooth' });

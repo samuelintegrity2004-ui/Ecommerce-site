@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const {
   getProducts, getProductById, getFeaturedProducts,
-  createProduct, updateProduct, deleteProduct, getProductImages
+  createProduct, updateProduct, deleteProduct, getProductImages, bulkAssignSections
 } = require('../controllers/productController');
 const { protect, admin } = require('../middleware/authMiddleware');
 const upload = require('../middleware/uploadMiddleware');
@@ -12,6 +12,7 @@ router.get('/', getProducts);
 router.get('/featured', getFeaturedProducts);
 router.get('/:id', getProductById);
 router.post('/', protect, admin, upload.single('imageFile'), createProduct);
+router.put('/bulk/sections', protect, admin, bulkAssignSections);
 router.put('/:id', protect, admin, upload.single('imageFile'), updateProduct);
 router.delete('/:id', protect, admin, deleteProduct);
 

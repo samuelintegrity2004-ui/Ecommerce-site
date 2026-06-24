@@ -39,8 +39,8 @@ export default function Footer() {
           <h4>Contact</h4>
           {[
             { Icon: MapPin, text: 'Lagos, Nigeria' },
-            { Icon: Phone, text: '+234 800 000 0000' },
-            { Icon: Mail, text: 'hello@ifeco.com' },
+            { Icon: Phone, text: '09151277509' },
+            { Icon: Mail, text: 'samuelintegrity2004@gmail.com' },
           ].map(({ Icon, text }) => (
             <div key={text} className="footer-contact-row">
               <Icon size={15} />

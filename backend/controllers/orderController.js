@@ -1,5 +1,5 @@
 const Order = require('../models/Order');
-const Product = require('../models/Product');
+const Product = require('../models/product');
 
 const calculateItemsPrice = (items) =>
   items.reduce((total, item) => total + Number(item.price) * Number(item.quantity), 0);

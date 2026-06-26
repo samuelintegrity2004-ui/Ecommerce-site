@@ -1,5 +1,5 @@
 const HomepageSettings = require('../models/HomepageSettings');
-const Product = require('../models/Product');
+const Product = require('../models/product');
 const cloudinary = require('../config/cloudinary');
 
 const defaultSections = [

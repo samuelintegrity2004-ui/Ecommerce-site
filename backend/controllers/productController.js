@@ -1,6 +1,7 @@
 const Product = require('../models/Product');
 const fs = require('fs');
 const path = require('path');
+const cloudinary = require('../config/cloudinary');
 
 const getProductImages = async (req, res) => {
   try {
@@ -84,14 +85,30 @@ const parseSections = (sections) => {
   }
 };
 
-const normalizeProductData = (body, file) => ({
-  ...body,
-  price: body.price !== undefined ? Number(body.price) : body.price,
-  stock: body.stock !== undefined ? Number(body.stock) : body.stock,
-  isFeatured: body.isFeatured === true || body.isFeatured === 'true',
-  sections: parseSections(body.sections),
-  image: file ? `/uploads/${file.filename}` : body.image,
-});
+const deleteCloudinaryImage = async (publicId) => {
+  if (!publicId) return;
+  await cloudinary.uploader.destroy(publicId, { invalidate: true });
+};
+
+const normalizeProductData = (body, file) => {
+  const { imagePublicId, ...bodyData } = body;
+  const productData = {
+    ...bodyData,
+    price: bodyData.price !== undefined ? Number(bodyData.price) : bodyData.price,
+    stock: bodyData.stock !== undefined ? Number(bodyData.stock) : bodyData.stock,
+    isFeatured: bodyData.isFeatured === true || bodyData.isFeatured === 'true',
+    sections: parseSections(bodyData.sections),
+  };
+
+  if (file) {
+    productData.image = file.path;
+    productData.imagePublicId = file.filename;
+  } else if (bodyData.image) {
+    productData.image = bodyData.image;
+  }
+
+  return productData;
+};
 
 const getProducts = async (req, res) => {
   const keyword = req.query.keyword
@@ -132,16 +149,34 @@ const createProduct = async (req, res) => {
 };
 
 const updateProduct = async (req, res) => {
+  const existingProduct = await Product.findById(req.params.id);
+  if (!existingProduct) {
+    await deleteCloudinaryImage(req.file?.filename);
+    res.status(404).json({ message: 'Product not found' });
+    return;
+  }
+
   const productData = normalizeProductData(req.body, req.file);
+  const imageWasReplaced = productData.image && productData.image !== existingProduct.image;
+  if (!req.file && imageWasReplaced) {
+    productData.imagePublicId = '';
+  }
+
   const product = await Product.findByIdAndUpdate(req.params.id, productData, { new: true });
-  if (product) res.json(product);
-  else res.status(404).json({ message: 'Product not found' });
+
+  if (imageWasReplaced && existingProduct.imagePublicId && existingProduct.imagePublicId !== req.file?.filename) {
+    await deleteCloudinaryImage(existingProduct.imagePublicId);
+  }
+
+  res.json(product);
 };
 
 const deleteProduct = async (req, res) => {
   const product = await Product.findByIdAndDelete(req.params.id);
-  if (product) res.json({ message: 'Product removed' });
-  else res.status(404).json({ message: 'Product not found' });
+  if (product) {
+    await deleteCloudinaryImage(product.imagePublicId);
+    res.json({ message: 'Product removed' });
+  } else res.status(404).json({ message: 'Product not found' });
 };
 
 const bulkAssignSections = async (req, res) => {

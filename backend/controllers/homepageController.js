@@ -1,5 +1,6 @@
 const HomepageSettings = require('../models/HomepageSettings');
 const Product = require('../models/Product');
+const cloudinary = require('../config/cloudinary');
 
 const defaultSections = [
   { key: 'todaysDeal', label: "Today's Deal", enabled: true, order: 1, limit: 8 },
@@ -22,6 +23,11 @@ const getSettingsDocument = async () => {
   return settings;
 };
 
+const deleteCloudinaryImage = async (publicId) => {
+  if (!publicId) return;
+  await cloudinary.uploader.destroy(publicId, { invalidate: true });
+};
+
 const getHomepageSettings = async (req, res) => {
   const settings = await getSettingsDocument();
   res.json(settings);
@@ -38,7 +44,8 @@ const addHeroSlide = async (req, res) => {
   const settings = await getSettingsDocument();
   settings.heroSlides.push({
     product: req.body.product || undefined,
-    bannerImage: req.file ? `/uploads/${req.file.filename}` : req.body.bannerImage,
+    bannerImage: req.file ? req.file.path : req.body.bannerImage,
+    bannerImagePublicId: req.file ? req.file.filename : '',
     title: req.body.title,
     subtitle: req.body.subtitle,
     buttonText: req.body.buttonText,
@@ -53,24 +60,43 @@ const addHeroSlide = async (req, res) => {
 const updateHeroSlide = async (req, res) => {
   const settings = await getSettingsDocument();
   const slide = settings.heroSlides.id(req.params.slideId);
-  if (!slide) return res.status(404).json({ message: 'Hero slide not found' });
+  if (!slide) {
+    await deleteCloudinaryImage(req.file?.filename);
+    return res.status(404).json({ message: 'Hero slide not found' });
+  }
+
+  const previousBannerImage = slide.bannerImage;
+  const previousBannerPublicId = slide.bannerImagePublicId;
 
   ['product', 'title', 'subtitle', 'buttonText', 'destinationLink'].forEach((field) => {
     if (req.body[field] !== undefined) slide[field] = req.body[field] || undefined;
   });
-  if (req.body.bannerImage !== undefined) slide.bannerImage = req.body.bannerImage;
-  if (req.file) slide.bannerImage = `/uploads/${req.file.filename}`;
+  if (req.body.bannerImage !== undefined) {
+    slide.bannerImage = req.body.bannerImage;
+    if (req.body.bannerImage !== previousBannerImage) slide.bannerImagePublicId = '';
+  }
+  if (req.file) {
+    slide.bannerImage = req.file.path;
+    slide.bannerImagePublicId = req.file.filename;
+  }
   if (req.body.order !== undefined) slide.order = Number(req.body.order);
   if (req.body.isActive !== undefined) slide.isActive = req.body.isActive === true || req.body.isActive === 'true';
 
   await settings.save();
+  const bannerWasReplaced = slide.bannerImage !== previousBannerImage;
+  if (bannerWasReplaced && previousBannerPublicId && previousBannerPublicId !== req.file?.filename) {
+    await deleteCloudinaryImage(previousBannerPublicId);
+  }
   res.json(await settings.populate('heroSlides.product'));
 };
 
 const deleteHeroSlide = async (req, res) => {
   const settings = await getSettingsDocument();
+  const slide = settings.heroSlides.id(req.params.slideId);
+  const previousBannerPublicId = slide?.bannerImagePublicId;
   settings.heroSlides.pull({ _id: req.params.slideId });
   await settings.save();
+  await deleteCloudinaryImage(previousBannerPublicId);
   res.json(await settings.populate('heroSlides.product'));
 };
 

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ChevronLeft, ShoppingCart } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -51,13 +51,16 @@ const formatCategory = (category) => {
 
 export default function ProductListing() {
   const [products, setProducts] = useState([]);
-  const [filteredProducts, setFilteredProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [selectedCategory, setSelectedCategory] = useState('all');
   const [quantities, setQuantities] = useState({});
   const [searchParams] = useSearchParams();
   const { addItem } = useCart();
   const navigate = useNavigate();
+  const category = searchParams.get('category') || 'all';
+  const categoryGroup = searchParams.get('categoryGroup') || '';
+  const keyword = (searchParams.get('keyword') || '').trim().toLowerCase();
+  const selectedCategory = categoryGroup || category;
+  const groupFilters = categoryGroups[categoryGroup];
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -67,7 +70,6 @@ export default function ProductListing() {
         const arrangedProducts = arrangeProducts(response.data || []);
 
         setProducts(arrangedProducts);
-        setFilteredProducts(arrangedProducts);
         setQuantities(Object.fromEntries(arrangedProducts.map((product) => [product._id, 1])));
       } catch (error) {
         console.error('Error fetching products:', error);
@@ -80,24 +82,13 @@ export default function ProductListing() {
     fetchProducts();
   }, []);
 
-  useEffect(() => {
-    const category = searchParams.get('category') || 'all';
-    const categoryGroup = searchParams.get('categoryGroup') || '';
-    const keyword = (searchParams.get('keyword') || '').trim().toLowerCase();
-    const activeCategory = categoryGroup || category;
-    const groupFilters = categoryGroups[categoryGroup];
-
-    setSelectedCategory(activeCategory);
-    setFilteredProducts(
-      products.filter((product) => {
-        const matchesCategory = groupFilters
-          ? groupFilters.includes(product.category)
-          : category === 'all' || product.category === category;
-        const matchesKeyword = !keyword || product.name.toLowerCase().includes(keyword);
-        return matchesCategory && matchesKeyword;
-      })
-    );
-  }, [products, searchParams]);
+  const filteredProducts = useMemo(() => products.filter((product) => {
+    const matchesCategory = groupFilters
+      ? groupFilters.includes(product.category)
+      : category === 'all' || product.category === category;
+    const matchesKeyword = !keyword || product.name.toLowerCase().includes(keyword);
+    return matchesCategory && matchesKeyword;
+  }), [category, groupFilters, keyword, products]);
 
   const categories = ['all', ...Object.keys(categoryGroups), ...new Set(products.map((product) => product.category))];
 
@@ -120,63 +111,35 @@ export default function ProductListing() {
   }
 
   return (
-    <div style={{ minHeight: 'calc(100vh - 200px)', background: '#f8f8f8' }}>
-      <div style={{ background: '#fff', padding: '20px 24px', boxShadow: 'var(--shadow-sm)' }}>
+    <div className="catalog-page">
+      <div className="catalog-header">
         <button
           onClick={() => navigate('/')}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            background: 'none',
-            color: 'var(--brand)',
-            marginBottom: '12px',
-            fontSize: '14px',
-            fontWeight: 600,
-          }}
+          className="catalog-back-button"
         >
           <ChevronLeft size={18} /> Back
         </button>
-        <h1 style={{
-          fontFamily: "'Playfair Display', serif",
-          fontSize: '28px',
-          color: 'var(--text-primary)',
-          margin: 0,
-        }}>
-          {formatCategory(selectedCategory)}
-        </h1>
-        <p style={{ margin: '8px 0 0 0', color: 'var(--text-muted)', fontSize: '14px' }}>
-          {filteredProducts.length} products available
-        </p>
+        <div>
+          <h1>{formatCategory(selectedCategory)}</h1>
+          <p>{filteredProducts.length} products available</p>
+        </div>
       </div>
 
       <div className="catalog-shell">
         <aside className="catalog-sidebar">
-          <h3 style={{ fontSize: '14px', fontWeight: 700, marginBottom: '12px', textTransform: 'uppercase' }}>
-            Categories
-          </h3>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          <h3>Categories</h3>
+          <div className="catalog-category-list">
             {categories.map((category) => (
               <button
                 key={category}
+                className={selectedCategory === category ? 'active' : ''}
                 onClick={() => {
-                  setSelectedCategory(category);
                   const params = new URLSearchParams();
                   if (category !== 'all') {
                     if (categoryGroups[category]) params.set('categoryGroup', category);
                     else params.set('category', category);
                   }
                   navigate(`/products${params.toString() ? `?${params.toString()}` : ''}`);
-                }}
-                style={{
-                  padding: '10px 12px',
-                  border: selectedCategory === category ? '2px solid var(--brand)' : '1px solid var(--border)',
-                  background: selectedCategory === category ? 'var(--brand)' : '#fff',
-                  color: selectedCategory === category ? '#fff' : 'var(--text-primary)',
-                  borderRadius: 'var(--radius-sm)',
-                  fontSize: '13px',
-                  fontWeight: 500,
-                  textTransform: 'capitalize',
                 }}
               >
                 {formatCategory(category)}
@@ -185,7 +148,7 @@ export default function ProductListing() {
           </div>
         </aside>
 
-        <section style={{ flex: 1, padding: '20px' }}>
+        <section className="catalog-products">
           {filteredProducts.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '40px' }}>
               <p style={{ fontSize: '16px', color: 'var(--text-muted)' }}>No products found</p>

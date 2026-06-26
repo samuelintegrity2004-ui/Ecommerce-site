@@ -1,4 +1,6 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { ChevronDown } from 'lucide-react';
 
 const categories = [
   {
@@ -27,24 +29,56 @@ const tagColors = {
   Trending: '#7c3aed',
 };
 
+const shopCategories = [
+  {
+    label: 'Electronics',
+    value: 'electronics',
+    items: [
+      { label: 'Phones & Accessories', value: 'phone-accessories' },
+      { label: 'Laptops', value: 'laptop' },
+      { label: 'TV & Video', value: 'tv' },
+      { label: 'Cameras', value: 'camera' },
+    ],
+  },
+  {
+    label: 'Fashion',
+    value: 'fashion',
+    items: [
+      { label: 'Clothing', value: 'cloth' },
+      { label: 'Watches', value: 'watch' },
+    ],
+  },
+  {
+    label: 'Home Appliances',
+    value: 'home-kitchen',
+    items: [
+      { label: 'Fridges', value: 'fridge' },
+      { label: 'Electric Cookers', value: 'electric-cook' },
+      { label: 'Fans', value: 'fan' },
+      { label: 'Irons', value: 'iron' },
+    ],
+  },
+  {
+    label: 'Cars & Mobility',
+    value: 'cars',
+    items: [
+      { label: 'Cars', value: 'car' },
+      { label: 'Bikes', value: 'bike' },
+    ],
+  },
+];
+
 export default function CategoryGrid() {
+  const [shopOpen, setShopOpen] = useState(false);
+  const [openCategory, setOpenCategory] = useState(shopCategories[0].value);
+
   return (
-    <section style={{ padding: '24px', maxWidth: '1400px', margin: '0 auto' }}>
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-        gap: '20px',
-      }}>
+    <section className="home-category-section">
+      <div className="home-category-grid">
         {categories.map((category) => (
-          <Link key={category.title} to={category.href}>
-            <div style={{
-              background: '#fff',
-              borderRadius: 'var(--radius-md)',
-              overflow: 'hidden',
-              boxShadow: 'var(--shadow-sm)',
-              transition: 'transform .25s, box-shadow .25s',
-              cursor: 'pointer',
-            }}
+          <article
+            key={category.title}
+            className="home-category-card"
             onMouseOver={(event) => {
               event.currentTarget.style.transform = 'translateY(-4px)';
               event.currentTarget.style.boxShadow = 'var(--shadow-md)';
@@ -53,7 +87,8 @@ export default function CategoryGrid() {
               event.currentTarget.style.transform = 'translateY(0)';
               event.currentTarget.style.boxShadow = 'var(--shadow-sm)';
             }}
-            >
+          >
+            <Link to={category.href}>
               <div style={{ position: 'relative', height: '200px', overflow: 'hidden' }}>
                 <img
                   src={category.image}
@@ -80,18 +115,53 @@ export default function CategoryGrid() {
                   {category.tag}
                 </span>
               </div>
+            </Link>
               <div style={{ padding: '16px' }}>
                 <h3 style={{ fontSize: '15px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '8px' }}>
                   {category.title}
                 </h3>
-                <span style={{ fontSize: '13px', color: 'var(--brand)', fontWeight: 600 }}>
+                <Link to={category.href} className="category-shop-link">
                   Shop now {'\u2192'}
-                </span>
+                </Link>
+                <button
+                  type="button"
+                  className="mobile-shop-toggle"
+                  onClick={() => setShopOpen((open) => !open)}
+                  aria-expanded={shopOpen}
+                >
+                  Shop now <ChevronDown size={14} />
+                </button>
               </div>
-            </div>
-          </Link>
+          </article>
         ))}
       </div>
+
+      {shopOpen && (
+        <div className="mobile-shop-accordion">
+          {shopCategories.map((category) => (
+            <div key={category.value} className="shop-accordion-group">
+              <button
+                type="button"
+                onClick={() => setOpenCategory((current) => (current === category.value ? '' : category.value))}
+                aria-expanded={openCategory === category.value}
+              >
+                {category.label}
+                <ChevronDown size={15} />
+              </button>
+              {openCategory === category.value && (
+                <div className="shop-accordion-panel">
+                  <Link to={`/products?categoryGroup=${category.value}`}>View all {category.label}</Link>
+                  {category.items.map((item) => (
+                    <Link key={item.value} to={`/products?category=${item.value}`}>
+                      {item.label}
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
     </section>
   );
 }

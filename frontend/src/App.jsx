@@ -11,6 +11,8 @@ import CustomerService from './pages/CustomerService';
 import SupportPage from './pages/SupportPage';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 import Cart from './pages/Cart';
 import ProductListing from './pages/ProductListing';
 import CategoryProducts from './pages/CategoryProducts';
@@ -52,6 +54,8 @@ function AppShell() {
         <Route path="/contact" element={<SupportPage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/products" element={<ProductListing />} />
         <Route path="/category/:category" element={<CategoryProducts />} />

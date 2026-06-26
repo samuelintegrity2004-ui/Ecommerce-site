@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import {
   BarChart3, Bell, Boxes, ChevronLeft, ChevronRight, ClipboardList, Edit3,
   Home, LayoutDashboard, Moon, MoreVertical, PanelLeftClose, PanelLeftOpen,
-  Plus, Save, Search, Settings, Sparkles, Sun, Trash2, Users,
+  Save, Search, Settings, Sparkles, Sun, Trash2, Users,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useAuth } from '../context/AuthContext';
@@ -99,6 +99,7 @@ export default function AdminDashboard() {
       navigate('/profile');
       return;
     }
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     loadAdminData().catch((error) => toast.error(error.response?.data?.message || 'Failed to load admin dashboard'));
   }, [navigate, user]);
 
@@ -373,6 +374,7 @@ function UsersPanel({ users, refresh }) {
 
 function HomepageSettingsPanel({ homepage, save }) {
   const [sections, setSections] = useState(homepage?.sections || []);
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => setSections(homepage?.sections || []), [homepage]);
   const updateSection = (key, patch) => setSections((current) => current.map((section) => section.key === key ? { ...section, ...patch } : section));
   return <div className="admin-panel settings-panel"><h2>Homepage Settings</h2>{sections.sort((a, b) => a.order - b.order).map((section) => <div key={section.key} className="settings-row"><label><input type="checkbox" checked={section.enabled} onChange={(e) => updateSection(section.key, { enabled: e.target.checked })} />{section.label}</label><input type="number" min="1" value={section.order} onChange={(e) => updateSection(section.key, { order: Number(e.target.value) })} /><input type="number" min="1" max="24" value={section.limit} onChange={(e) => updateSection(section.key, { limit: Number(e.target.value) })} /></div>)}<button className="primary-button" onClick={() => save(sections)}>Save settings</button></div>;

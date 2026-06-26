@@ -19,6 +19,7 @@ const heroSlideSchema = new mongoose.Schema(
   {
     product: { type: mongoose.Schema.Types.ObjectId, ref: 'Product' },
     bannerImage: { type: String, required: true },
+    bannerImagePublicId: { type: String, default: '' },
     title: { type: String, required: true },
     subtitle: { type: String, default: '' },
     buttonText: { type: String, default: 'Shop Now' },

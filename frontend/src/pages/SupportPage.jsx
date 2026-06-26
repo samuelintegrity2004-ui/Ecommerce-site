@@ -51,9 +51,9 @@ const pages = {
     eyebrow: 'Support Team',
     intro: 'Need direct help? Reach our customer care team for orders, payments, delivery, returns, and account issues.',
     sections: [
-      ['Phone', '+234 800 000 0000'],
-      ['Email', 'hello@ifeco.com'],
-      ['Office', 'Lagos, Nigeria'],
+      ['Phone', '09151277509'],
+      ['Email', 'samuelintegrity2004@gmail.com'],
+      ['Office', 'Enugu, Nigeria'],
       ['Support hours', 'Monday to Saturday, 8:00 AM - 7:00 PM'],
     ],
   },

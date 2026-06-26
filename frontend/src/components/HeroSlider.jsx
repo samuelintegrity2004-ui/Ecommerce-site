@@ -52,14 +52,14 @@ export default function HeroSlider({ slides: managedSlides }) {
     }, 300);
   }, [transitioning]);
 
-  const prev = () => goTo(current === 0 ? slides.length - 1 : current - 1);
-  const next = () => goTo(current === slides.length - 1 ? 0 : current + 1);
+  const prev = useCallback(() => goTo(current === 0 ? slides.length - 1 : current - 1), [current, goTo, slides.length]);
+  const next = useCallback(() => goTo(current === slides.length - 1 ? 0 : current + 1), [current, goTo, slides.length]);
 
   // Auto-advance
   useEffect(() => {
     const timer = setInterval(next, 5000);
     return () => clearInterval(timer);
-  }, [current]);
+  }, [next]);
 
   const slide = slides[current] || slides[0];
 

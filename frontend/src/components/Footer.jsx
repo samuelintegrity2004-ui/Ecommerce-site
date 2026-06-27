@@ -44,52 +44,55 @@ export default function Footer() {
   return (
     <footer className="site-footer">
       <div className="footer-grid">
-        <div>
+        <div className="footer-brand-panel">
           <h2>ifeco</h2>
           <p>Nigeria's premier e-commerce destination for cars, electronics, fashion, home essentials and more.</p>
-          <div className="footer-socials">
-            <button type="button" onClick={handleShare} aria-label="Share ifeco">
-              <Share2 size={16} />
-            </button>
-            <Link to="/contact" aria-label="Contact customer support">
-              <MessageCircle size={16} />
-            </Link>
-            <div className="footer-region">
-              <button
-                type="button"
-                onClick={() => setRegionOpen((open) => !open)}
-                aria-expanded={regionOpen}
-                aria-label="Select language or region"
-              >
-                <Globe size={16} />
-              </button>
-              {regionOpen && (
-                <div className="region-menu">
-                  <strong>Language & Region</strong>
-                  <button type="button" onClick={() => setRegionOpen(false)}>English - Nigeria</button>
-                  <button type="button" onClick={() => setRegionOpen(false)}>English - Ghana</button>
-                  <button type="button" onClick={() => setRegionOpen(false)}>Francais - Afrique</button>
-                </div>
-              )}
-            </div>
+        </div>
+
+        <div className="footer-sections-row">
+          <FooterLinkGroup title="Quick Links" links={quickLinks} />
+          <FooterLinkGroup title="Support" links={supportLinks} />
+
+          <div>
+            <h4>Contact</h4>
+            {[
+              { Icon: MapPin, text: 'Enugu, Nigeria' },
+              { Icon: Phone, text: '09151277509' },
+              { Icon: Mail, text: 'samuelintegrity2004@gmail.com' },
+            ].map(({ Icon, text }) => (
+              <div key={text} className="footer-contact-row">
+                <Icon size={15} />
+                {text}
+              </div>
+            ))}
           </div>
         </div>
 
-        <FooterLinkGroup title="Quick Links" links={quickLinks} />
-        <FooterLinkGroup title="Support" links={supportLinks} />
-
-        <div>
-          <h4>Contact</h4>
-          {[
-            { Icon: MapPin, text: 'Enugu, Nigeria' },
-            { Icon: Phone, text: '09151277509' },
-            { Icon: Mail, text: 'samuelintegrity2004@gmail.com' },
-          ].map(({ Icon, text }) => (
-            <div key={text} className="footer-contact-row">
-              <Icon size={15} />
-              {text}
-            </div>
-          ))}
+        <div className="footer-socials">
+          <button type="button" onClick={handleShare} aria-label="Share ifeco">
+            <Share2 size={16} />
+          </button>
+          <Link to="/contact" aria-label="Contact customer support">
+            <MessageCircle size={16} />
+          </Link>
+          <div className="footer-region">
+            <button
+              type="button"
+              onClick={() => setRegionOpen((open) => !open)}
+              aria-expanded={regionOpen}
+              aria-label="Select language or region"
+            >
+              <Globe size={16} />
+            </button>
+            {regionOpen && (
+              <div className="region-menu">
+                <strong>Language & Region</strong>
+                <button type="button" onClick={() => setRegionOpen(false)}>English - Nigeria</button>
+                <button type="button" onClick={() => setRegionOpen(false)}>English - Ghana</button>
+                <button type="button" onClick={() => setRegionOpen(false)}>Francais - Afrique</button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 

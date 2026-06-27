@@ -1,3 +1,4 @@
+import { useLayoutEffect } from 'react';
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider } from './context/AuthContext';
@@ -36,6 +37,15 @@ export default function App() {
 function AppShell() {
   const location = useLocation();
   const isAdminArea = location.pathname.startsWith('/admin');
+
+  useLayoutEffect(() => {
+    const root = document.documentElement;
+    const previousScrollBehavior = root.style.scrollBehavior;
+
+    root.style.scrollBehavior = 'auto';
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+    root.style.scrollBehavior = previousScrollBehavior;
+  }, [location.pathname, location.search]);
 
   return (
     <>

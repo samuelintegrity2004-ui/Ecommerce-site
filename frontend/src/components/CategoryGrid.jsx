@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronDown } from 'lucide-react';
+import { resolveAssetUrl } from '../services/api';
 
 const categories = [
   {
@@ -91,7 +92,7 @@ export default function CategoryGrid() {
             <Link to={category.href}>
               <div style={{ position: 'relative', height: '200px', overflow: 'hidden' }}>
                 <img
-                  src={category.image}
+                  src={resolveAssetUrl(category.image)}
                   alt={category.title}
                   style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform .4s' }}
                   onMouseOver={(event) => event.currentTarget.style.transform = 'scale(1.05)'}

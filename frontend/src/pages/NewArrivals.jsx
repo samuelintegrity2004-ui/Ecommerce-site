@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { ArrowRight, BadgeCheck, Sparkles, Truck } from 'lucide-react';
+import { resolveAssetUrl } from '../services/api';
 
 const arrivalGroups = [
   {
@@ -76,7 +77,7 @@ export default function NewArrivals() {
               <div className="arrival-products">
                 {group.products.map((product) => (
                   <Link key={product.name} to={group.href}>
-                    <img src={product.image} alt={product.name} />
+                    <img src={resolveAssetUrl(product.image)} alt={product.name} />
                     <span>{product.name}</span>
                   </Link>
                 ))}

@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { resolveAssetUrl } from '../services/api';
 
 // Replace these URLs with your own images later
 const fallbackSlides = [
@@ -72,7 +73,7 @@ export default function HeroSlider({ slides: managedSlides }) {
     }}>
       {/* Slide image */}
       <img
-        src={slide.image}
+        src={resolveAssetUrl(slide.image)}
         alt={slide.title}
         style={{
           width: '100%',

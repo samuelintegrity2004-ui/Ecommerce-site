@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ChevronLeft, ShoppingCart } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { getImageProducts } from '../services/api';
+import { getImageProducts, resolveAssetUrl } from '../services/api';
 import { useCart } from '../context/CartContext';
 
 const quantityOptions = Array.from({ length: 10 }, (_, index) => index + 1);
@@ -119,7 +119,7 @@ export default function CategoryProducts() {
               <article key={product._id} className="product-card">
                 <div className="product-card-image">
                   <img
-                    src={product.image}
+                    src={resolveAssetUrl(product.image)}
                     alt={product.name}
                     onError={(event) => {
                       event.currentTarget.src = 'https://via.placeholder.com/240?text=No+Image';

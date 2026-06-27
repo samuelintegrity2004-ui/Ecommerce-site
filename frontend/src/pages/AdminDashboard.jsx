@@ -24,6 +24,7 @@ import {
   updateOrderStatus,
   updateProduct,
   updateUser,
+  resolveAssetUrl,
 } from '../services/api';
 
 const sectionOptions = [
@@ -312,7 +313,7 @@ export default function AdminDashboard() {
                 <h2>Hero carousel</h2>
                 <div className="slide-list">{homepage?.heroSlides?.sort((a, b) => a.order - b.order).map((slide) => (
                   <article key={slide._id} className="slide-row">
-                    <img src={slide.bannerImage} alt={slide.title} />
+                    <img src={resolveAssetUrl(slide.bannerImage)} alt={slide.title} />
                     <div><strong>{slide.title}</strong><span>{slide.subtitle}</span><small>{slide.product?.name || 'Custom banner'}</small></div>
                     <button onClick={() => startEditSlide(slide)}><Edit3 size={15} /></button>
                     <button onClick={async () => { await deleteHeroSlide(slide._id); await loadAdminData(); }}><Trash2 size={15} /></button>
@@ -351,7 +352,7 @@ function ProductTable({ products, selected, setSelected, edit, remove }) {
     <div className="table-wrap"><table className="data-table pro-table"><thead><tr><th></th><th>Product</th><th>Price</th><th>Stock</th><th>Sections</th><th>Actions</th></tr></thead><tbody>
       {products.map((product) => <tr key={product._id}>
         <td><input type="checkbox" checked={selected.includes(product._id)} onChange={() => toggle(product._id)} /></td>
-        <td><div className="product-cell"><img src={product.image} alt={product.name} /><span>{product.name}</span></div></td>
+        <td><div className="product-cell"><img src={resolveAssetUrl(product.image)} alt={product.name} /><span>{product.name}</span></div></td>
         <td>{currency(product.price)}</td><td>{product.stock}</td>
         <td><div className="pill-wrap">{(product.sections || []).map((section) => <span key={section}>{sectionOptions.find((item) => item.key === section)?.label || section}</span>)}</div></td>
         <td className="row-actions"><button onClick={() => edit(product)}><Edit3 size={14} />Edit</button><button onClick={() => remove(product._id)}><Trash2 size={14} />Delete</button></td>

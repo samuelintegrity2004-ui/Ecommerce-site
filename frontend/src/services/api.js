@@ -1,7 +1,15 @@
 import axios from 'axios';
 
+export const API_ORIGIN = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
+
+export const resolveAssetUrl = (url) => {
+  if (!url || /^(https?:|data:|blob:)/i.test(url)) return url;
+  if (url.startsWith('/images') || url.startsWith('/uploads')) return `${API_ORIGIN}${url}`;
+  return url;
+};
+
 const API = axios.create({
-  baseURL: '/api',
+  baseURL: `${API_ORIGIN}/api`,
   withCredentials: true,
 });
 

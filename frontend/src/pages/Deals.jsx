@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { Clock, Flame, Percent, ShoppingBag, Tag, Zap } from 'lucide-react';
+import { resolveAssetUrl } from '../services/api';
 
 const dealCategories = ['Phones & accessories', 'Home appliances', 'Fashion markdowns', 'Car essentials', 'Computing deals'];
 
@@ -50,7 +51,7 @@ export default function Deals() {
           {dealProducts.map((product) => (
             <article key={product.name} className="deal-card">
               <span>{product.off}</span>
-              <img src={product.image} alt={product.name} />
+              <img src={resolveAssetUrl(product.image)} alt={product.name} />
               <div>
                 <p>{product.category}</p>
                 <h3>{product.name}</h3>

@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { ChevronLeft, ChevronRight, ShoppingCart } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import toast from 'react-hot-toast';
-import { getImageProducts } from '../services/api';
+import { getImageProducts, resolveAssetUrl } from '../services/api';
 
 const shuffle = (items) => [...items].sort(() => Math.random() - 0.5);
 
@@ -73,7 +73,7 @@ export default function ProductSlider({ title = 'Best In Sales', productsOverrid
           >
             <div className="best-sales-image">
               <img
-                src={product.image}
+                src={resolveAssetUrl(product.image)}
                 alt={product.name}
               />
             </div>

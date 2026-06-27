@@ -2,7 +2,7 @@ import { Trash2, Plus, Minus, ShoppingBag, ArrowRight } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
-import { createOrder } from '../services/api';
+import { createOrder, resolveAssetUrl } from '../services/api';
 import toast from 'react-hot-toast';
 
 export default function Cart() {
@@ -69,7 +69,7 @@ export default function Cart() {
               boxShadow: 'var(--shadow-sm)',
               border: '1px solid var(--border)',
             }}>
-              <img src={item.image} alt={item.name} style={{
+              <img src={resolveAssetUrl(item.image)} alt={item.name} style={{
                 width: '90px',
                 height: '90px',
                 objectFit: 'cover',
